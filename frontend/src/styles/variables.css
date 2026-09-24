@@ -1,0 +1,64 @@
+:root {
+  /* ---- Brand palette (Color Hunt: f63049-d02752-8a244b-111f35) ---- */
+  --primary-dark: #111f35;
+  --primary-dark-soft: #182a47;
+  --primary-burgundy: #8a244b;
+  --secondary-pink: #d02752;
+  --accent-red: #f63049;
+
+  /* ---- Neutrals ---- */
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #111827;
+  --text-muted: #667085;
+  --border: #e5e7eb;
+
+  /* ---- Semantic ---- */
+  --success: #1b8a5a;
+  --success-bg: #e7f6ef;
+  --warning: #b7791f;
+  --warning-bg: #fdf3e0;
+  --danger: #c0293f;
+  --danger-bg: #fbe9ec;
+
+  /* ---- Chart series (drawn from the brand palette + neutrals) ---- */
+  --chart-1: #8a244b;
+  --chart-2: #d02752;
+  --chart-3: #f63049;
+  --chart-4: #111f35;
+  --chart-5: #5b7ba6;
+  --chart-6: #c7ccd6;
+
+  /* ---- Typography ---- */
+  --font-display: "Plus Jakarta Sans", "Inter", -apple-system, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ---- Radius ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 2px rgba(17, 31, 53, 0.06);
+  --shadow-md: 0 4px 16px rgba(17, 31, 53, 0.08);
+  --shadow-lg: 0 12px 32px rgba(17, 31, 53, 0.12);
+
+  /* ---- Layout ---- */
+  --sidebar-width: 264px;
+  --sidebar-width-collapsed: 76px;
+  --navbar-height: 68px;
+
+  /* ---- Spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---- Transitions ---- */
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+}
