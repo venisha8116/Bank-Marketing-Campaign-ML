@@ -35,3 +35,4 @@ test-results/
 playwright-report/
 
 tests/*.png
+tests/model_parity_data.json

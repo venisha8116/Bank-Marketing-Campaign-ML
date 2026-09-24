@@ -58,7 +58,7 @@ function gaussianLogProbability(x, mean, variance) {
   return -0.5 * (Math.log(2 * Math.PI * safeVariance) + ((x - mean) ** 2) / safeVariance);
 }
 
-function predict(payload) {
+export function predict(payload) {
   const raw = buildFeatures(payload);
   const x = standardize(raw);
   const logScores = naiveBayesParameters.classes.map((_, classIndex) => {
