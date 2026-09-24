@@ -1,120 +1,92 @@
 # Bank Marketing Campaign ML
 
-An end-to-end machine learning project for predicting whether a bank customer is likely to subscribe to a term deposit. The repository combines exploratory data analysis, data cleaning and preprocessing, model training and comparison, saved model artifacts, and a React/Vite dashboard with an interactive prediction form.
+An academic machine-learning project that predicts whether a bank customer is likely to subscribe to a term deposit. It combines exploratory data analysis, preprocessing, model comparison, saved scikit-learn artifacts, a React/Vite dashboard, and browser-based tests for the prediction interface.
 
-## Project Overview
+## Overview and Problem Statement
 
-The project uses customer, campaign, previous-contact, and economic information to study subscription behavior and perform binary classification for the target variable `y`.
+The project treats subscription prediction as a binary classification problem:
 
-The repository contains:
+- **Target:** `y`
+- **Classes:** `no` and `yes`
+- **Goal:** predict whether a customer will subscribe to a bank term deposit using customer, campaign, previous-contact, and economic information.
 
-- Jupyter notebooks for EDA, preprocessing, model training, and evaluation.
-- Saved Gaussian Naive Bayes and scaler artifacts in `models/`.
-- A React frontend that presents the dataset and analysis and performs customer-level prediction in the browser using stored Naive Bayes parameters.
-
-This is an academic/portfolio implementation. The inspected repository does not contain a backend prediction API or deployment configuration.
-
-## Problem Statement
-
-The target variable is `y`:
-
-- `yes`: the customer subscribed to a term deposit.
-- `no`: the customer did not subscribe.
-
-The goal is to predict whether a customer will subscribe based on available customer, campaign, prior-contact, and economic information.
+The repository includes notebooks for the data-science workflow and a frontend that displays the project results and performs customer-level Gaussian Naive Bayes predictions in the browser.
 
 ## Dataset
 
-| Item | Verified details |
-|---|---|
-| Dataset | `bank-additional-full.csv` |
-| Source | UCI Machine Learning Repository — Bank Marketing dataset |
+The notebooks use the **UCI Machine Learning Repository Bank Marketing dataset**, specifically `bank-additional-full.csv`, loaded with `;` as the separator.
+
+| Item | Verified value |
+|---|---:|
 | Raw records | 41,188 |
-| Raw columns | 21, including the target |
+| Raw columns | 21 |
 | Raw numerical features | 10 |
 | Raw categorical features | 10 |
-| Target variable | `y` |
-| Classes | `no`, `yes` |
-| Records after unknown-value cleaning | 40,787 |
+| Target | `y` |
+| Records after removing selected `unknown` rows | 40,787 |
 | Records after duplicate removal | 40,775 |
 | Final model features | 59 |
 
-The raw columns cover customer demographics, contact and campaign information, previous campaign outcomes, and economic indicators. Examples include `age`, `job`, `marital`, `education`, `contact`, `month`, `campaign`, `pdays`, `previous`, `poutcome`, `emp.var.rate`, `cons.price.idx`, `cons.conf.idx`, `euribor3m`, and `nr.employed`.
+The target distribution recorded by the project is 36,548 `no` records (88.734583%) and 4,640 `yes` records (11.265417%). `pdays = 999` represents a customer who was not previously contacted. The raw data contains no `NaN` values, although several categorical fields contain the literal value `unknown`.
 
-Additional dataset characteristics documented by the project:
+The raw CSV is referenced by the notebooks but is **not included in this repository**.
 
-- `pdays = 999` represents a customer who was not previously contacted.
-- The raw dataset contains no `NaN` values.
-- The target is imbalanced: 36,548 records are `no` and 4,640 are `yes`.
-- The raw CSV is referenced by the notebooks but is not included in this repository.
-
-## Machine Learning Workflow
+## Workflow
 
 ```text
 Dataset
-  → Exploratory Data Analysis
-  → Data Cleaning
-  → Feature Encoding and Numerical Preparation
-  → Train/Test Split
-  → Model Training
-  → Model Evaluation
-  → Model Comparison
-  → Final Gaussian Naive Bayes Model
-  → Frontend Prediction Interface
+  -> EDA
+  -> Data cleaning
+  -> Categorical encoding and numerical preparation
+  -> Train/test split
+  -> Model training
+  -> Evaluation and comparison
+  -> Gaussian Naive Bayes selection
+  -> Frontend prediction
 ```
 
 ## Exploratory Data Analysis
 
-`notebooks/EDA.ipynb` examines dataset shape, data types, summary statistics, missing values, categorical values, duplicates, distributions, and relationships with the target. The frontend reproduces the main findings through visualizations for:
+`notebooks/EDA.ipynb` examines dataset shape, data types, summary statistics, missing values, categorical values, duplicates, distributions, and target relationships. The frontend presents charts for:
 
-- Target distribution.
-- Customers by job.
-- Contact method versus subscription.
-- Subscription by campaign month.
-- Previous campaign outcome versus subscription.
-- Previous-contact/prior-contact behavior.
+- target distribution
+- customers by job
+- contact method versus subscription
+- subscription by month
+- previous campaign outcome versus subscription
+- previous-contact information
 
-Verified findings documented in the project include:
+The documented findings include a strongly imbalanced target, a higher subscription rate for customers with a previous successful campaign outcome, greater use of cellular than telephone contact, and strong movement among `emp.var.rate`, `euribor3m`, and `nr.employed`. The project also records lower average values of those three economic variables for subscribers than for non-subscribers. The frontend intentionally does not display a correlation heat map.
 
-- The target is heavily imbalanced: 36,548 customers did not subscribe and 4,640 subscribed.
-- Previous campaign outcome, contact method, month, and prior-contact status are identified as important individual signals.
-- Customers with a previous successful campaign outcome have substantially higher subscription rates than the other previous-outcome groups.
-- Cellular contact is more common than telephone contact: 26,144 versus 15,044 records.
-- `emp.var.rate`, `euribor3m`, and `nr.employed` move together strongly, indicating overlapping macroeconomic information.
-- Subscribers have lower documented average `emp.var.rate`, `euribor3m`, and `nr.employed` values than non-subscribers.
-- The frontend EDA page states that the correlation heat map was removed from that page.
+## Preprocessing
 
-## Data Preprocessing
+`notebooks/DataPreprocessing.ipynb` documents the following steps:
 
-`notebooks/DataPreprocessing.ipynb` documents the following process:
-
-1. Load `bank-additional-full.csv` with `;` as the separator.
-2. Inspect shape, data types, null values, literal `unknown` values, and duplicate rows.
-3. Remove rows with `unknown` in `job` (330 rows) and `marital` (80 rows).
-4. Remove 12 duplicate rows after the unknown-value cleaning step.
-5. Retain other categorical `unknown` values that remain in the project feature definitions. No `NaN` imputation is needed because the raw data contains zero `NaN` values.
-6. Exclude `duration` before model training. The project identifies it as target leakage because it is only known after the call.
-7. Encode categorical variables and prepare numerical variables, resulting in 59 model features.
-8. Scale the numerical model features using the saved scaler.
-9. Prepare the target as a binary value: `no = 0` and `yes = 1`.
+1. Load `bank-additional-full.csv` with a semicolon separator.
+2. Inspect shape, types, null values, literal `unknown` values, and duplicates.
+3. Remove 330 rows with `unknown` in `job` and 80 rows with `unknown` in `marital`.
+4. Remove 12 duplicate rows after that cleaning step.
+5. Keep other categorical `unknown` values represented in the project features; no `NaN` imputation is needed.
+6. Exclude `duration` before training because it is only known after the call and introduces target leakage.
+7. Encode categorical variables and prepare numerical variables, producing 59 model features.
+8. Standardize the numerical model features with the saved scaler.
+9. Encode the target as `no = 0` and `yes = 1`.
 
 ## Models Evaluated
 
-The model-training notebook evaluates these classifiers:
+The model-training notebook evaluates:
 
-| Model | Role |
-|---|---|
-| Logistic Regression | Linear binary-classification baseline. |
-| Decision Tree | Rule-based classifier using feature splits. |
-| Random Forest | Ensemble of decision trees. |
-| AdaBoost | Boosting classifier that focuses successively on difficult observations. |
-| Gradient Boosting | Sequential boosting ensemble. |
-| K-Nearest Neighbors (KNN) | Distance-based classifier using nearby training examples. |
-| Gaussian Naive Bayes | Probabilistic classifier using class priors and Gaussian feature likelihoods. |
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- AdaBoost
+- Gradient Boosting
+- K-Nearest Neighbors (KNN)
+- Gaussian Naive Bayes
 
-## Model Evaluation
+## Evaluation Results
 
-The project compares accuracy, precision, recall, F1 score, and ROC-AUC. The comparison values stored in `frontend/src/data/projectData.js` are:
+The comparison values used by the frontend are:
 
 | Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
 |---|---:|---:|---:|---:|---:|
@@ -124,68 +96,93 @@ The project compares accuracy, precision, recall, F1 score, and ROC-AUC. The com
 | AdaBoost | 0.9001 | 0.7 | 0.198 | 0.3087 | 0.8038 |
 | Gradient Boosting | 0.8987 | 0.626 | 0.2514 | 0.3587 | 0.8093 |
 | KNN | 0.8743 | 0.4169 | 0.2894 | 0.3417 | 0.6985 |
-| Gaussian Naive Bayes | 0.8083 | 0.3201 | 0.6235 | 0.423 | 0.7715 |
+| Gaussian Naive Bayes | **0.8083** | **0.3201** | **0.6235** | **0.423** | **0.7715** |
 
-### Selected-model results
+The selected model's recorded metrics are:
 
-The recorded results for Gaussian Naive Bayes are:
+| Metric | Value |
+|---|---:|
+| Accuracy | 0.8083 |
+| Precision | 0.3201 |
+| Recall | 0.6235 |
+| F1 | 0.423 |
+| ROC-AUC | 0.7715 |
 
-- **Accuracy:** `0.8083`
-- **Precision:** `0.3201`
-- **Recall:** `0.6235`
-- **F1 score:** `0.423`
-- **ROC-AUC:** `0.7715`
-
-Confusion matrix:
+Its confusion matrix is:
 
 |  | Predicted No | Predicted Yes |
 |---|---:|---:|
 | Actual No | 6,019 | 1,217 |
 | Actual Yes | 346 | 573 |
 
-The training and test sets contain 32,620 and 8,155 rows respectively, with 59 features in each feature matrix.
+The model was evaluated using 32,620 training rows and 8,155 test rows, with 59 features.
 
-## Final Selected Model
+## Selected Model
 
-The final selected model is **Gaussian Naive Bayes** from scikit-learn (`GaussianNB`), with `var_smoothing = 1e-09`.
+The final selected model is **Gaussian Naive Bayes** (`sklearn.naive_bayes.GaussianNB`) with `var_smoothing = 1e-09`.
 
-The project records that it was selected because the project prioritizes identifying potential subscribers. It achieved the highest recall among the tested models (`0.6235`) and the lowest recorded number of false negatives. This selection is therefore recall-oriented; several other models have higher accuracy or precision.
+The project documents the selection as recall-oriented: Gaussian Naive Bayes achieved the highest recall among the tested models and the lowest recorded number of false negatives. It was not selected because it had the highest accuracy, precision, or ROC-AUC.
 
 ## Prediction System
 
-Prediction is implemented in the frontend and does not call a separate backend service.
+The prediction page collects required inputs in four groups:
 
-1. The user completes fields grouped into customer information, campaign information, previous campaign information, and economic context.
-2. `predictionService.js` builds the 59 features expected by the saved model parameters.
-3. Categorical values are converted to the frontend model representation. `contact` is encoded as `cellular = 1` and `telephone = 0`.
-4. Numerical features are standardized with the stored scaling parameters.
-5. Gaussian log probabilities are calculated for both classes using the stored class priors, means, and variances.
-6. The positive-class probability is compared with `0.5` to produce `yes` or `no`.
+- Customer information
+- Campaign information
+- Previous campaign information
+- Economic context
 
-The browser implementation imports `naiveBayesParameters` from `frontend/src/data/projectData.js`; it does not load the pickle files directly. A successful prediction result contains:
+`frontend/src/services/predictionService.js` then:
 
-- predicted class
-- subscription probability
-- confidence
-- model used
-- success status
-- ISO generation timestamp, displayed by the result card as the generated time
+1. Builds the 59 features in the saved model's expected order.
+2. Encodes categorical values, including `cellular = 1` and `telephone = 0` for `contact`.
+3. Standardizes the numerical features using the stored means and scales.
+4. Computes Gaussian Naive Bayes log scores and normalized class probabilities.
+5. Returns `yes` when the positive-class probability is at least `0.5`; otherwise it returns `no`.
 
-## Frontend Pages and Features
+The browser uses `naiveBayesParameters` from `frontend/src/data/projectData.js`. It does not deserialize the pickle files directly. A successful result includes the predicted class, subscription probability, confidence, model name, status, and generation timestamp.
 
-The configured primary routes are:
+## Frontend
 
-| Route | Page | Purpose |
-|---|---|---|
-| `/` | Landing | Introduces the project. |
-| `/dashboard` | Dashboard | Shows dataset KPIs and pipeline status. |
-| `/dataset` | Dataset | Shows dataset dimensions, feature definitions, and cleaning summary. |
-| `/eda` | EDA & Visualization | Displays the supplied EDA charts and findings. |
-| `/evaluation` | Model Evaluation | Shows selected-model metrics, classification details, confusion matrix, and comparison results. |
-| `/prediction` | Customer Subscription Prediction | Collects inputs and returns a Gaussian Naive Bayes prediction. |
-| `/about` | About | Shows project context, dataset source, and technology stack. |
+The application is built with React and Vite. Its configured pages are:
 
-The routes `/project`, `/preprocessing`, `/models`, and `/models/:modelName` redirect to existing pages rather than providing separate page implementations.
+| Route | Purpose |
+|---|---|
+| `/` | Landing page and entry point. |
+| `/dashboard` | Dataset KPIs and workflow status. |
+| `/dataset` | Dataset dimensions, feature definitions, and cleaning summary. |
+| `/eda` | EDA charts and verified findings. |
+| `/evaluation` | Selected-model metrics, confusion matrix, classification report, and model comparison. |
+| `/prediction` | Customer input form and prediction result. |
+| `/about` | Project context, source, and technology stack. |
+
+The legacy routes `/project`, `/preprocessing`, `/models`, and `/models/:modelName` redirect to existing pages. Unknown application routes redirect to the dashboard.
+
+## Model ↔ Frontend Parity Testing
+
+The repository contains Playwright tests and a Python parity-data generator:
+
+- `tests/generate_model_predictions.py` loads the saved Python model and scaler, samples up to 10 deterministic dataset rows, and writes temporary comparison data.
+- `tests/model-parity.spec.js` imports the frontend prediction function and compares frontend predictions and probabilities with the Python model. Probabilities must differ by less than `0.00001`.
+- `tests/basic.spec.js` audits the main routes, navigation, landing-page navigation, and selected page content.
+- `playwright.config.js` starts the Vite development server from `frontend/` and runs tests from the repository root.
+
+Run the Playwright suite from the repository root after installing the root Playwright dependency and the frontend dependencies:
+
+```bash
+npm install
+cd frontend
+npm install
+cd ..
+npx playwright install
+npx playwright test
+```
+
+The parity generator currently loads the dataset from its own configured local path. The raw dataset is not committed to the repository, so parity testing requires a local copy and the Python dependencies used by the script (`pandas` and `joblib`, plus the model's scikit-learn environment).
+
+### Dataset environment variable
+
+`BANK_MARKETING_DATASET_PATH` is **not currently read by the committed implementation**. The parity generator presently contains a local dataset path in its Python source. Therefore, setting this variable alone does not configure the current tests. Replacing that hard-coded path with environment-variable handling would be a future improvement; personal local paths are intentionally not documented here.
 
 ## Project Structure
 
@@ -195,22 +192,11 @@ Bank-Marketing-Campaign-ML/
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── vite.config.js
-│   ├── index.html
 │   ├── public/
 │   │   ├── favicon.svg
 │   │   ├── icons.svg
-│   │   ├── eda/
-│   │   │   ├── age-distribution.png
-│   │   │   ├── contact-subscription.png
-│   │   │   ├── job-distribution.png
-│   │   │   ├── month-subscription.png
-│   │   │   ├── poutcome-subscription.png
-│   │   │   ├── previous-contacts.png
-│   │   │   ├── prior-contact.png
-│   │   │   └── target-distribution.png
-│   │   └── model/
-│   │       ├── logistic-roc.png
-│   │       └── model-comparison.png
+│   │   ├── eda/*.png
+│   │   └── model/*.png
 │   └── src/
 │       ├── App.jsx
 │       ├── main.jsx
@@ -229,23 +215,12 @@ Bank-Marketing-Campaign-ML/
 │       │   └── Prediction/Prediction.jsx
 │       ├── components/
 │       │   ├── cards/
-│       │   │   ├── KpiCard.jsx
-│       │   │   └── PredictionResult.jsx
-│       │   │   ├── charts/ChartCard.jsx
-│       │   │   ├── common/
-│       │   │   │   ├── Pipeline.jsx
-│       │   │   │   └── StatePanel.jsx
-│       │   │   ├── forms/FormField.jsx
-│       │   │   ├── layout/
-│       │   │   │   ├── AppShell.jsx
-│       │   │   │   ├── Navbar.jsx
-│       │   │   │   └── Sidebar.jsx
-│       │   │   └── tables/DataTable.jsx
-│       │   └── styles/
-│       │       ├── components.css
-│       │       ├── global.css
-│       │       ├── layout.css
-│       │       └── variables.css
+│       │   ├── charts/
+│       │   ├── common/
+│       │   ├── forms/
+│       │   ├── layout/
+│       │   └── tables/
+│       └── styles/
 ├── models/
 │   ├── naive_bayes_model.pkl
 │   └── scaler.pkl
@@ -253,13 +228,19 @@ Bank-Marketing-Campaign-ML/
 │   ├── EDA.ipynb
 │   ├── DataPreprocessing.ipynb
 │   └── ModelTrainingAndEvaluation.ipynb
+├── tests/
+│   ├── basic.spec.js
+│   ├── generate_model_predictions.py
+│   └── model-parity.spec.js
+├── playwright.config.js
+├── package.json
 ├── .gitignore
 └── README.md
 ```
 
-## Technologies Used
+## Technologies
 
-### Machine Learning / Data Science
+### Machine Learning and data science
 
 - Python
 - Jupyter Notebook
@@ -267,6 +248,7 @@ Bank-Marketing-Campaign-ML/
 - NumPy
 - Matplotlib
 - scikit-learn
+- joblib
 
 ### Frontend
 
@@ -279,99 +261,91 @@ Bank-Marketing-Campaign-ML/
 - Lucide React
 - CSS
 
-### Development Tools
+### Testing and development
 
+- Playwright Test
 - npm
-- Vite development server and production build
 - Oxlint
 
-## How to Run the Project
+## Installation and Run Instructions
 
-### Prerequisites
+### Frontend development server
 
-- Node.js and npm.
-- The repository cloned locally.
-
-The repository does not specify a Node.js version.
-
-### Install dependencies
-
-Run from `frontend/`:
+From `frontend/`:
 
 ```bash
-cd frontend
 npm install
-```
-
-### Start the development server
-
-Run from `frontend/`:
-
-```bash
 npm run dev
 ```
 
-Vite prints the local development URL in the terminal.
+### Production build
 
-### Build for production
-
-Run from `frontend/`:
+From `frontend/`:
 
 ```bash
 npm run build
 ```
 
-### Preview the production build
-
-Run from `frontend/`:
+The build command is the exact `build` script defined in `frontend/package.json`. To preview the built application locally:
 
 ```bash
 npm run preview
 ```
 
-### Lint
+### Linting
 
-Run from `frontend/`:
+From `frontend/`:
 
 ```bash
 npm run lint
 ```
 
-These commands are taken from `frontend/package.json`.
+### End-to-end tests
+
+From the repository root:
+
+```bash
+npm install
+npx playwright install
+npx playwright test
+```
+
+The Playwright configuration starts the frontend with `npm run dev -- --host 127.0.0.1` from the `frontend/` directory. Parity tests also require the external raw dataset and the Python packages used by `tests/generate_model_predictions.py`.
 
 ## Model Artifacts
 
-The `models/` directory contains:
+The repository contains:
 
-| File | Documented purpose |
-|---|---|
-| `naive_bayes_model.pkl` | Saved Naive Bayes model artifact. |
-| `scaler.pkl` | Saved scaler artifact for numerical feature standardization. |
+- `models/naive_bayes_model.pkl` — serialized Gaussian Naive Bayes model.
+- `models/scaler.pkl` — serialized `StandardScaler` used for the numerical model features.
 
-The current browser prediction path uses the JavaScript parameter object in `frontend/src/data/projectData.js` rather than deserializing these pickle files. The frontend feature order, encoding, scaling parameters, and Naive Bayes parameters must remain consistent with the trained model.
+The frontend uses the corresponding parameter representation stored in `frontend/src/data/projectData.js`; the feature order, encoding, scaling values, and model parameters must remain aligned.
 
 ## Notebooks
 
-- **`notebooks/EDA.ipynb`** — loads and examines the dataset, checks structure and data quality, and explores customer, campaign, economic, and target distributions.
-- **`notebooks/DataPreprocessing.ipynb`** — checks missing and unknown values and duplicates, cleans the data, excludes leakage-prone `duration`, encodes features, scales numerical values, and prepares training/test data.
-- **`notebooks/ModelTrainingAndEvaluation.ipynb`** — loads processed train/test data, trains the candidate classifiers, calculates metrics, evaluates confusion matrices and ROC-AUC, compares models, and records the selected model.
+- **`notebooks/EDA.ipynb`** — dataset inspection, summary statistics, data-quality checks, distributions, and relationships with subscription behavior.
+- **`notebooks/DataPreprocessing.ipynb`** — unknown-value and duplicate analysis, cleaning, target preparation, categorical encoding, numerical scaling, leakage exclusion, and processed feature preparation.
+- **`notebooks/ModelTrainingAndEvaluation.ipynb`** — train/test loading, candidate model training, metric calculation, confusion-matrix and ROC-AUC evaluation, model comparison, and final model selection.
 
-## Important Notes
+## Limitations
 
-- The raw `bank-additional-full.csv` file is not included in the repository; it is referenced by the notebooks.
-- Prediction currently runs through the frontend implementation in `predictionService.js`; no backend inference endpoint is present in the inspected source.
-- `duration` is excluded from model training because the project identifies it as target leakage.
-- The repository contains both pickle artifacts and frontend JavaScript parameters; changes to the trained feature representation must be reflected consistently in the frontend.
+- The raw dataset is not included in the repository.
+- The browser prediction path is a frontend reimplementation of the saved model parameters rather than a backend inference service.
+- The parity test currently depends on an external local dataset and a hard-coded path in `tests/generate_model_predictions.py`; `BANK_MARKETING_DATASET_PATH` is not yet supported by that script.
+- The positive-class threshold is fixed at `0.5` in the frontend prediction service.
+- The dataset is strongly imbalanced, and the selected model has relatively low precision despite higher recall.
+- The repository does not include production deployment or model-monitoring infrastructure.
 
 ## Future Improvements
 
-The following are future improvements, not completed features in the current repository:
+Possible future work, not current functionality:
 
+- Read `BANK_MARKETING_DATASET_PATH` in the parity-data generator and validate the path before loading the CSV.
 - Add a backend model-serving API that loads the pickle artifacts.
-- Add automated tests for feature construction, preprocessing consistency, and prediction outputs.
-- Add deployment configuration for the frontend and model-serving layer.
-- Add model monitoring and periodic evaluation on new campaign data.
-- Add a reproducible dataset download or preparation step for notebook execution.
+- Add automated unit tests for preprocessing, feature ordering, encoding, and threshold behavior.
+- Add reproducible Python environment/dependency configuration for notebook and parity execution.
+- Add deployment configuration and model monitoring.
+- Evaluate threshold tuning and imbalance-aware training using a documented validation procedure.
 
 ## Dataset Reference
 
