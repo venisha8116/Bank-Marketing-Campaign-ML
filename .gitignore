@@ -28,3 +28,10 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Root Node / Playwright
+node_modules/
+test-results/
+playwright-report/
+
+tests/*.png

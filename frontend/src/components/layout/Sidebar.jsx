@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChevronLeft, ChevronRight, LineChart } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { navItems } from "../../utils/navigation";
 import { useNavigate } from "react-router-dom";
 

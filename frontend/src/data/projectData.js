@@ -581,7 +581,7 @@ export const predictionFormSchema = {
       "type": "number",
       "min": 92,
       "max": 95,
-      "step": 0.01
+      "step": 0.001
     },
     {
       "name": "cons.conf.idx",
