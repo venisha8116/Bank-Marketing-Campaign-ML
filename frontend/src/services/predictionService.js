@@ -1,5 +1,10 @@
 import { naiveBayesParameters } from "../data/projectData.js";
 
+const API_BASE_URL =
+  import.meta.env?.VITE_API_BASE_URL ??
+  globalThis.process?.env?.API_BASE_URL ??
+  "http://localhost:8000";
+
 const categoricalGroups = {
   job: ["admin.", "blue-collar", "entrepreneur", "housemaid", "management", "retired", "self-employed", "services", "student", "technician", "unemployed"],
   marital: ["divorced", "married", "single"],
@@ -32,7 +37,7 @@ function buildFeatures(payload) {
   // The model's second feature is the encoded cellular/telephone value from the notebook.
   x.contact = payload.contact === "cellular" ? 1 : 0;
 
-  for (const [field, values] of Object.entries(categoricalGroups)) {
+  for (const field of Object.keys(categoricalGroups)) {
     const value = payload[field];
     if (value == null) continue;
     const feature = `${field}_${value}`;
@@ -82,10 +87,42 @@ export function predict(payload) {
     confidence: Number(Math.max(probabilities[0], probabilities[1]).toFixed(6)),
     modelUsed: "Gaussian Naive Bayes",
     status: "success",
+    source: "browser",
     generatedAt: new Date().toISOString(),
   };
 }
 
+async function predictViaApi(payload) {
+  const response = await fetch(`${API_BASE_URL}/api/predict`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Prediction API responded with status ${response.status}`);
+  }
+
+  const analysis = await response.json();
+
+  return {
+    prediction: analysis.prediction,
+    probability: analysis.probability,
+    confidence: analysis.confidence,
+    probabilities: analysis.probabilities,
+    modelUsed: analysis.modelUsed,
+    status: "success",
+    source: "api",
+    analysis,
+    generatedAt: analysis.generatedAt,
+  };
+}
+
 export async function runPrediction(payload) {
-  return predict(payload);
+  try {
+    return await predictViaApi(payload);
+  } catch (error) {
+    console.warn("Prediction API unavailable, falling back to the in-browser model:", error);
+    return predict(payload);
+  }
 }
