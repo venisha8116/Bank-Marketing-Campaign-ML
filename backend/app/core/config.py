@@ -20,6 +20,7 @@ CORS_ORIGINS = [
     "http://127.0.0.1:5174",
     "http://localhost:4173",
     "http://127.0.0.1:4173",
+    "https://bank-marketing-campaign-ml.vercel.app",
 ]
 
 CATEGORICAL_GROUPS = [
